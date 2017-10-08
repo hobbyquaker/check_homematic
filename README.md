@@ -54,6 +54,8 @@ define host {
         alias                   homematic-ccu2
         address                 192.168.2.100
 }
+
+
 define service {
         use                     generic-service
         host_name               homematic-ccu2
@@ -85,6 +87,19 @@ define service {
         check_command           check_homematic!rega
 }
 
+
+define service {
+        use                     generic-service
+        host_name               homematic-ccu2
+        service_description     WebUI
+        check_command           check_http
+}
+define service {
+        use                     generic-service
+        host_name               homematic-ccu2
+        service_description     SSH
+        check_command           check_ssh
+}
 ```
 
 ## License
