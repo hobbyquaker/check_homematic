@@ -1,6 +1,6 @@
 {
   "name": "check_homematic",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Nagios/Icinga Plugin for checking Homematic CCU",
   "main": "index.js",
   "bin": {
@@ -30,8 +30,8 @@
   },
   "homepage": "https://github.com/hobbyquaker/check_homematic#readme",
   "devDependencies": {
-    "camo-purge": "^1.0.2",
-    "xo": "^0.18.2"
+    "camo-purge": "latest",
+    "xo": "latest"
   },
   "dependencies": {
     "binrpc": "^3.1.0",
