@@ -3,6 +3,9 @@
 const Rega = require('homematic-rega');
 const xmlrpc = require('homematic-xmlrpc');
 const binrpc = require('binrpc');
+const pjson = require('persist-json')('check_homematic');
+
+let names = {};
 
 const yargs = require('yargs') // eslint-disable-line no-unused-vars
     .usage('$0 <cmd> [args]')
@@ -40,6 +43,12 @@ const yargs = require('yargs') // eslint-disable-line no-unused-vars
             default: 8701
         });
     }, checkCuxd)
+    .command('sync', 'sync Rega Names', yargs => {
+        yargs.option('port', {
+            describe: 'Rega Port',
+            default: 8181
+        });
+    }, syncNames)
     .argv;
 
 function checkRega(options) {
@@ -59,28 +68,39 @@ function checkRega(options) {
 }
 
 function checkRfd(options) {
+    const p = pjson.load('names-' + options.host) || {};
+    if (!p.date || ((new Date()).getTime() - p.date) > (24 * 60 * 60 * 1000)) {
+        syncNames(options, () => {
+            checkRfd(options);
+        });
+        return;
+    }
+    names = p.names || {};
+
     const rpcClient = binrpc.createClient({host: options.host, port: options.port});
     rpcClient.methodCall('getServiceMessages', [], (err, res) => {
         if (err) {
             console.log('RFD CRITICAL -', (err && err.message));
             process.exit(2);
         } else {
-            let unreach = 0;
-            let lowbat = 0;
+            const unreach = [];
+            const lowbat = [];
             if (res.forEach) {
                 res.forEach(sm => {
+                    const dev = sm[0].replace(':0', '');
                     if (sm[1] === 'UNREACH') {
-                        unreach += 1;
+                        unreach.push(names[dev] || dev);
                     } else if (sm[1] === 'LOWBAT' || sm[1] === 'LOW_BAT') {
-                        lowbat += 1;
+                        lowbat.push(names[dev] || dev);
                     }
                 });
             }
-            if (unreach > 0 || lowbat > 0) {
+
+            if (unreach.length > 0 || lowbat.length > 0) {
                 console.log(
                     'RFD WARNING',
-                    (unreach ? ('- UNREACH: ' + unreach) : ''),
-                    (lowbat ? ('- LOWBAT: ' + lowbat) : '')
+                    (unreach.length > 0 ? ('- ' + unreach.length + ' UNREACH: ' + unreach.join(', ')) : ''),
+                    (lowbat.length > 0 ? ('- ' + lowbat.length + ' LOWBAT: ' + lowbat.join(', ')) : '')
                 );
                 process.exit(1);
             } else {
@@ -112,6 +132,7 @@ function checkHs485d(options) {
 
 function checkHmip(options) {
     const rpcClient = xmlrpc.createClient({host: options.host, port: options.port});
+    // TODO getServiceMessages like in checkRfd() instead of getVersion - https://github.com/eq-3/occu/issues/54
     rpcClient.methodCall('getVersion', [], (err, res) => {
         if (err) {
             console.log('HmIP CRITICAL -', (err && err.message));
@@ -138,6 +159,33 @@ function checkCuxd(options) {
         } else {
             console.log('CUxD CRITICAL');
             process.exit(2);
+        }
+    });
+}
+
+function syncNames(options, callback) {
+    const rega = new Rega({
+        host: options.host,
+        port: 8181
+    });
+    rega.exec(`
+string sDevId;
+foreach(sDevId, root.Devices().EnumUsedIDs()) {
+    var d = dom.GetObject(sDevId);
+    WriteLine(d.Address() # " " # d.Name());
+}
+                `, (err, res) => {
+        if (!err) {
+            const lines = res.split('\r\n');
+            lines.forEach(line => {
+                if (line !== '') {
+                    names[line.substr(0, line.indexOf(' '))] = line.substr(line.indexOf(' ') + 1);
+                }
+            });
+            pjson.save('names-' + options.host, {date: (new Date()).getTime(), names});
+        }
+        if (typeof callback === 'function') {
+            callback();
         }
     });
 }
