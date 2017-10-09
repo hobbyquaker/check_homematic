@@ -1,6 +1,6 @@
 {
   "name": "check_homematic",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Nagios/Icinga Plugin for checking Homematic CCU",
   "main": "index.js",
   "bin": {
@@ -37,6 +37,7 @@
     "binrpc": "^3.1.0",
     "homematic-rega": "^1.0.0",
     "homematic-xmlrpc": "^1.0.2",
+    "persist-json": "^1.2.0",
     "yargs": "^9.0.1"
   },
   "xo": {
