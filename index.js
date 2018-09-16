@@ -13,36 +13,57 @@ const yargs = require('yargs') // eslint-disable-line no-unused-vars
         alias: 'H',
         required: true
     })
+
     .command('rega', 'check ReGaHSS', yargs => {
         yargs.option('port', {
             describe: 'Rega Port',
             default: 8181
         });
     }, checkRega)
+
     .command('rfd', 'check RFD', yargs => {
         yargs.option('port', {
             describe: 'RFD Port',
             default: 2001
         });
     }, checkRfd)
+
+    .command('interfaces', 'check BidcosInterfaces and Duty Cycle', yargs => {
+        yargs.option('dutycycle-warning', {
+            alias: 'w',
+            default: 75
+        });
+        yargs.option('dutycycle-critical', {
+            alias: 'c',
+            default: 90
+        });
+        yargs.option('port', {
+            describe: 'RFD Port',
+            default: 2001
+        });
+    }, checkBidcosInterfaces)
+
     .command('hs485d', 'check HS485D', yargs => {
         yargs.option('port', {
             describe: 'HS485D Port',
             default: 2000
         });
     }, checkHs485d)
+
     .command('hmip', 'check HmIP', yargs => {
         yargs.option('port', {
             describe: 'HmIP Port',
             default: 2010
         });
     }, checkHmip)
+
     .command('cuxd', 'check CUxD', yargs => {
         yargs.option('port', {
             describe: 'CUxD Port',
             default: 8701
         });
     }, checkCuxd)
+
     .command('sync', 'sync Rega Names', yargs => {
         yargs.option('port', {
             describe: 'Rega Port',
@@ -50,6 +71,44 @@ const yargs = require('yargs') // eslint-disable-line no-unused-vars
         });
     }, syncNames)
     .argv;
+
+function checkBidcosInterfaces(options) {
+    const rpcClient = binrpc.createClient({host: options.host, port: options.port});
+    rpcClient.methodCall('listBidcosInterfaces', [], (err, res) => {
+        if (err) {
+            console.log('BidcosInterfaces CRITICAL -', (err && err.message));
+            process.exit(2);
+        } else {
+            let warn;
+            let crit;
+            let output = [];
+            res.forEach(iface => {
+                const name = iface.DESCRIPTION ? (iface.DESCRIPTION + ' (' + iface.ADDRESS + ')') : iface.ADDRESS;
+                if (iface.CONNECTED) {
+                    if (iface.DUTY_CYCLE > options['dutycycle-critical']) {
+                        crit = true;
+                    } else if (iface.DUTY_CYCLE > options['dutycycle-warning']) {
+                        warn = true;
+                    }
+                    output.push(name + ' Duty Cycle: ' + iface.DUTY_CYCLE + '%');
+                } else {
+                    crit = true;
+                    output.push(name + ' Disconnected');
+                }
+            });
+            if (crit) {
+                console.log('BidcosInterfaces CRITICAL -', output.join(', '));
+                process.exit(2);
+            } else if (warn) {
+                console.log('BidcosInterfaces WARNING -', output.join(', '));
+                process.exit(1);
+            } else {
+                console.log('BidcosInterfaces OK -', output.join(', '));
+                process.exit(0);
+            }
+        }
+    });
+}
 
 function checkRega(options) {
     const rega = new Rega({

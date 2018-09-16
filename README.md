@@ -22,17 +22,21 @@ Prerequisite: Node.js >= 6
 check_homematic <cmd> [args]
 
 Commands:
-  rega    check ReGaHSS
-  rfd     check RFD
-  hs485d  check HS485D
-  hmip    check HmIP
-  cuxd    check CUxD
+  rega        check ReGaHSS
+  rfd         check RFD
+  interfaces  check BidcosInterfaces and Duty Cycle
+  hs485d      check HS485D
+  hmip        check HmIP
+  cuxd        check CUxD
+  sync        sync Rega Names
 
 Options:
   --help      Show help                                                [boolean]
   --version   Show version number                                      [boolean]
   --host, -H                                                          [required]
 ```
+
+Call --help with command name to get command-specific options help.
 
 
 ## Nagios Configuration
@@ -61,6 +65,12 @@ define service {
         host_name               homematic-ccu2
         service_description     RFD
         check_command           check_homematic!rfd
+}
+define service {
+        use                     generic-service
+        host_name               homematic-ccu2
+        service_description     DutyCycle
+        check_command           check_homematic!interfaces
 }
 define service {
         use                     generic-service
