@@ -1,7 +1,7 @@
 # check_homematic
 
 [![NPM version](https://badge.fury.io/js/check_homematic.svg)](http://badge.fury.io/js/check_homematic)
-[![Dependency Status](https://img.shields.io/gemnasium/hobbyquaker/check_homematic.svg?maxAge=2592000)](https://gemnasium.com/github.com/hobbyquaker/check_homematic)
+[![dependencies Status](https://david-dm.org/hobbyquaker/check_homematic/status.svg)](https://david-dm.org/hobbyquaker/check_homematic)
 [![Build Status](https://travis-ci.org/hobbyquaker/check_homematic.svg?branch=master)](https://travis-ci.org/hobbyquaker/check_homematic)
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 [![License][mit-badge]][mit-url]
