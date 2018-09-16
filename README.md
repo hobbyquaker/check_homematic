@@ -15,6 +15,8 @@ Prerequisite: Node.js >= 6
 
 `$ sudo npm install -g check_homematic`
 
+![](check_homematic.png)
+
 
 ## Command Line Options
 
