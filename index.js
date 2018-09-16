@@ -5,6 +5,11 @@ const xmlrpc = require('homematic-xmlrpc');
 const binrpc = require('binrpc');
 const pjson = require('persist-json')('check_homematic');
 
+setTimeout(() => {
+    console.log('UNKNOWN - Check Timeout');
+    process.exit(3);
+}, 30000);
+
 let names = {};
 
 const yargs = require('yargs') // eslint-disable-line no-unused-vars
@@ -81,7 +86,7 @@ function checkBidcosInterfaces(options) {
         } else {
             let warn;
             let crit;
-            let output = [];
+            const output = [];
             res.forEach(iface => {
                 const name = iface.DESCRIPTION ? (iface.DESCRIPTION + ' (' + iface.ADDRESS + ')') : iface.ADDRESS;
                 if (iface.CONNECTED) {
