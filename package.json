@@ -34,11 +34,11 @@
     "xo": "latest"
   },
   "dependencies": {
-    "binrpc": "^3.1.0",
-    "homematic-rega": "^1.0.0",
+    "binrpc": "^3.2.2",
+    "homematic-rega": "^1.2.6",
     "homematic-xmlrpc": "^1.0.2",
     "persist-json": "^1.2.0",
-    "yargs": "^9.0.1"
+    "yargs": "^12.0.2"
   },
   "xo": {
     "space": 4
