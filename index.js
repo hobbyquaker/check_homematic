@@ -2,7 +2,6 @@
 
 const Rega = require('homematic-rega');
 const xmlrpc = require('homematic-xmlrpc');
-const binrpc = require('binrpc');
 const pjson = require('persist-json')('check_homematic');
 
 setTimeout(() => {
@@ -78,7 +77,7 @@ const yargs = require('yargs') // eslint-disable-line no-unused-vars
     .argv;
 
 function checkBidcosInterfaces(options) {
-    const rpcClient = binrpc.createClient({host: options.host, port: options.port});
+    const rpcClient = xmlrpc.createClient({host: options.host, port: options.port});
     rpcClient.methodCall('listBidcosInterfaces', [], (err, res) => {
         if (err) {
             console.log('BidcosInterfaces CRITICAL -', (err && err.message));
@@ -141,7 +140,7 @@ function checkRfd(options) {
     }
     names = p.names || {};
 
-    const rpcClient = binrpc.createClient({host: options.host, port: options.port});
+    const rpcClient = xmlrpc.createClient({host: options.host, port: options.port});
     rpcClient.methodCall('getServiceMessages', [], (err, res) => {
         if (err) {
             console.log('RFD CRITICAL -', (err && err.message));
@@ -176,7 +175,7 @@ function checkRfd(options) {
 }
 
 function checkHs485d(options) {
-    const rpcClient = binrpc.createClient({host: options.host, port: options.port});
+    const rpcClient = xmlrpc.createClient({host: options.host, port: options.port});
     rpcClient.methodCall('getLGWStatus', [], (err, res) => {
         if (err) {
             console.log('HS485D CRITICAL', (err && err.message));
@@ -212,7 +211,7 @@ function checkHmip(options) {
 }
 
 function checkCuxd(options) {
-    const rpcClient = binrpc.createClient({host: options.host, port: options.port});
+    const rpcClient = xmlrpc.createClient({host: options.host, port: options.port});
     rpcClient.methodCall('system.listMethods', [], (err, res) => {
         if (err) {
             console.log('CUxD CRITICAL -', (err && err.message));
